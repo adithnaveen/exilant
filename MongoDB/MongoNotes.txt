@@ -1,0 +1,380 @@
+Mongodb notes 
+
+
+
+
+public void insertEmployee(Emp e){
+	e.getEmpId();
+	e.getEmpName();
+}
+-- dbpath is mandatory 
+./mongod --dbpath ./data/db
+
+
+-- to invoke the client 
+./mongo --port 27018 
+
+to insert 
+use exidb 
+
+db.emps.insert({empid:101, empname:'kiran', empsal:40000});
+db.emps.insert({empid:102, empname:'kumar', empsal:30000});
+db.emps.insert({empid:103, empname:'anil', empsal:50000});
+db.emps.insert({empid:104, empname:'vani', empsal:60000});
+
+
+
+var emp1 = {empid:104, empname:'vani', empsal:60000};
+db.emps1.insert(emp1);
+
+db.emps1.insert({empid:103, empname:'anil', empsal:50000});
+db.emps1.insert({empid:101, empname:'kiran', empsal:40000});
+
+
+db.emps1.insert({empid:111, empname:'Gupteshwari', empsal:50000});
+
+
+db.emps1.insert({empid:110, empname:'Ramkumar', empsal:50000, email:"ram@exilant"});
+
+db.emps1.insert({empname:'Prashanth', empsal:55000, email:"prashanth@exilant"});
+
+
+
+var cursor = db.emps1.find();
+
+while(cursor.hasNext()){
+	var temp = cursor.next();
+
+	print(temp.empname +", " + temp.empsal) ;
+}
+
+---------------------------------------
+
+var cursor = db.emps1.find();
+
+while(cursor.hasNext()){
+	var temp = cursor.next();
+	db.emps2.insert({"empname":temp.empname, "empsal":temp.empsal});
+
+}
+
+-- capped collection 
+db.createCollection("capcoll", {capped:true, size:1000, max:5});
+
+db.capcoll.insert({name:'Anjali'});
+db.capcoll.insert({name:'Mukesh'});
+db.capcoll.insert({name:'Bikash'});
+db.capcoll.insert({name:'Naren'});
+
+
+db.capcoll.insert({name:'Mahesh'});
+
+
+db.persons.insert(
+	[{},{},{}]
+); 
+
+
+--- find (select) 
+
+db.emps1.find({empsal:40000});
+
+
+db.emps1.find({empsal:{$gt:40000}});
+
+db.emps1.find({email:{$exists:true}}); 
+
+db.emps1.find().limit(3);
+
+
+-- for sort 1 is ascending, -1 is descending and you can give multiple field's 
+db.emps1.find().sort({empsal:-1, empid:1}).limit(3);
+
+
+
+
+-- using in clause 
+
+db.emps1.find({empname:{$in:["vani", "anil", "kiran"]}})
+
+
+
+--to find emps who as got "an" in there name 
+db.emps1.find({empname:{$in:[/an/]}})
+
+
+-- to find employee sal between 45000 and 50000 and name has "an" 
+db.emps1.find(
+	{empsal:{$gt:45000, $lte:50000}, empname:{$in:[/an/]}} 
+)
+
+
+-- to find employee sal between 45000 and 50000 or  name has "an" 
+
+
+db.emps1.find({
+	$or:[
+		{empsal:{$gt:55000}}, 
+		{empname:{$in:[/th/]}}
+	]
+})
+
+
+-- embedded documnets 
+
+
+db.embeddoc.insert({
+	empid:101, 
+	name:'Latha', 
+	contact:{
+		email:'latha.s@exilant.com', 
+		phone:'12121212'
+	}, 
+	address:{
+		houseNo:123, 
+		geoloc:{
+			lat:444.22, 
+			lon:664.34
+		}
+	}
+})
+
+db.embeddoc.insert({
+	empid:102, 
+	name:'Debashish', 
+	contact:{
+		email:'Debashish.s@exilant.com', 
+		phone:'223322'
+	}, 
+	address:{
+		houseNo:222, 
+		geoloc:{
+			lat:444.22, 
+			lon:664.34
+		}
+	}
+})
+
+-- to find people who has got lat 444.22 
+
+db.embeddoc.find({'address.geoloc.lat':444.22});
+
+
+db.embeddoc.find({'address.houseNo':222});
+
+
+
+
+db.products.insert({type:"food", name:"pizza", ratings:[4,5,7]});
+db.products.insert({type:"food", name:"burger", ratings:[8,9,10]});
+db.products.insert({type:"food", name:"pulav", ratings:[3,4,5,1]});
+
+
+-- query 
+-- exact match 
+db.products.find({ratings:[4,5,7]})
+
+-- any where 5
+db.products.find({ratings:5})
+
+-- first position 3 
+db.products.find({'ratings.0':3})
+
+-- any value greater than 8 
+db.products.find({ratings: {$elemMatch:{$gt:8}}});
+
+
+
+
+-- update 
+--1. Selection 
+--2 . set values 
+--3. update multiple or not default is false 
+db.emps1.update({},{},{});
+
+
+
+db.emps1.update({email:{$exists:false}},  {$set:{email:'default@exilant.com'}})
+
+
+
+
+db.emps1.update(
+	{email:{$exists:false}},  
+	{$set:{email:'default@exilant.com'}}, 
+	{multi:true}
+);
+
+
+
+db.emps1.update(
+	{dept:{$exists:false}},  
+	{$set:{dept:'finance', location:'bengluru'}}, 
+	{multi:true}
+);
+
+
+db.emps1.remove({empsal:{$gt:55000}});
+
+
+db.emps1.update(
+	{empname:'santhosh'},
+	{$set:{dept:'accounts', location:'bengluru'}} , 
+	{upsert:true});
+
+
+db.books.save({"_id" : ObjectId("5a292717185aa7a9beddeb3e"),author:"BRANSON", title:"Gain what has gone"});
+
+
+
+db.emps1.find({empname:"kiran"});
+
+db.emps1.find({empname:"kiran"}).explain("executionStats");
+
+
+db.emps1.createIndex({empname:1});
+
+
+
+{
+        "_id" : "01001",
+        "city" : "AGAWAM",
+        "loc" : [
+                -72.622739,
+                42.070206
+        ],
+        "pop" : 15338,
+        "state" : "MA"
+}
+
+
+db.population.find({city:"AGAWAM"}).explain("executionStats");
+
+db.population.createIndex({city:1});
+
+db.population.find({city:"AGAWAM"}).explain("executionStats");
+
+db.emps1.getIndexes();
+
+
+-- create compound index 
+--- empname and sal in ascending order 
+
+db.emps1.find({empname:"kiran", empsal:{$gt:40000} }).explain("executionStats");
+
+db.emps1.createIndex({empname:1, empsal:1});
+
+
+db.emps1.createIndex({empsal:1, empname:1});
+
+
+
+
+db.emps1.find({empname:"kiran", empsal:{$gt:40000} }).hint({empname:1, empsal:1}).explain("executionStats");
+
+
+db.emps1.find({empname:"kiran", empsal:{$gt:40000} }).hint({empsal:1, empname:1}).explain("executionStats");
+
+
+
+=--- unique key 
+
+db.emps1.createIndex({empid:1}, {unique:true});
+
+
+
+db.emps1.dropIndex({empid:1})
+
+
+db.devices.save({id:101, name:"computer"});
+
+db.devices.save({id:102, name:"laptop"});
+
+db.devices.createIndex({id:1}, {unique:true});
+
+
+
+select * from orders 
+where status = 'A'
+group by deptno, location ;
+
+db.population.aggregate( [
+   { $group: { _id: "$state", totalPop: { $sum: "$pop" } } },
+   { $match: { totalPop: { $gte: 10*1000*1000 } } }
+] );
+
+
+The following aggregation operation returns the average populations for cities in each state:
+
+
+
+db.population.aggregate( [
+   { $group: { _id: { state: "$state", city: "$city" }, pop: { $sum: "$pop" } } },
+   { $group: { _id: "$_id.state", avgCityPop: { $avg: "$pop" } } }, 
+   { $match: {avgCityPop:{$gt:1000}}}
+] )
+
+
+
+db.population.aggregate( [
+   { $group:
+      {
+        _id: { state: "$state", city: "$city" },
+        pop: { $sum: "$pop" }
+      }
+   },
+   { $sort: { pop: 1 } },
+   { $group:
+      {
+        _id : "$_id.state",
+        biggestCity:  { $last: "$_id.city" },
+        biggestPop:   { $last: "$pop" },
+        smallestCity: { $first: "$_id.city" },
+        smallestPop:  { $first: "$pop" }
+      }
+   }]);
+
+
+
+
+-- import data from slides 
+--- map reduce
+
+mymap = function(){
+	emit(this.color, this.value)
+}
+
+myreduce = function(key, vals){
+	sum=0; 
+	for(i=0; i<vals.length; i++){
+		sum += vals[i]
+	}
+
+	return sum; 
+}
+
+
+var myres = db.colors.mapReduce(mymap ,myreduce, {out:"Result"})
+
+
+db[myres.result].find();
+
+
+http://bit.ly/2BV9m8w
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

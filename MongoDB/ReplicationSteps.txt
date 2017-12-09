@@ -1,0 +1,184 @@
+
+---------------------------------------------------------------------------------------------------
+Replication Using  MongoDb 
+--------------------------------------------------------------------------------------------------
+
+
+
+The replica sets name is "navrs"
+
+
+On windows
+Open command prompt and give the following command.
+
+C:\>mkdir \data\rs1 \data\rs2 \data\rs3
+
+
+On unix or mac
+
+mkdir –p /data/rs1 /data/rs2 /data/rs3
+
+On windows
+-------------------------
+start mongod --replSet navrs --logpath  \data\rs1\1.log --dbpath \data\rs1 --port 27017 --smallfiles --oplogSize 64
+
+start mongod --replSet navrs --logpath  \data\rs1\2.log --dbpath \data\rs2 --port 27018 --smallfiles --oplogSize 64
+start mongod --replSet navrs --logpath  \data\rs1\3.log --dbpath \data\rs3 --port 27019 --smallfiles --oplogSize 64
+
+
+on unix/mac
+
+mongod --replSet navrs --logpath ./rs1/1.log --dbpath ./rs1 --port 27017 --smallfiles --oplogSize 64 --fork 
+mongod --replSet navrs --logpath ./rs2/2.log --dbpath ./rs2 --port 27018 --smallfiles --oplogSize 64 --fork 
+mongod --replSet navrs --logpath ./rs3/3.log --dbpath ./rs3 --port 27019 --smallfiles --oplogSize 64 --fork 
+
+
+
+You need to interconnect all three nodes. You need to open a command prompt and write configuration code and finally you need to call rs.initiate(config) command to start the replica sets as expected. 
+
+
+> mongo --port 27017 
+
+config = {_id:"navrs", members: [
+{_id: 0, host: "localhost:27017"},
+{_id: 1, host: "localhost:27018"},
+{_id: 2, host: "localhost:27019"}]
+};
+
+
+Now replica sets with three nodes is setup and configured successfully. You can check the status of the replica sets with rs.status().
+> rs.status();
+
+> rs.initiate(config);
+
+on primary, insert some records 
+db.emps.insert({name:"Naveen", sal:34343});
+db.emps.insert({name:"scott", sal:3341});
+
+db.emps.find();
+
+now connect to secondary which is running on 27018 
+mongo --port 27018 
+db.emps.find();
+
+you have to say rs.slaveOk(); to read the content 
+
+
+You can only read data from the secondary nodes but cannot insert document to the secondary nodes. 
+for example:
+db.emps.insert({name:"vinod", sal:332211});
+will give error 
+
+
+failover in replication 
+To see the failover situation in replica sets, let’s shutdown the primary node.
+
+on primary 
+mongo --port 27017 
+> db.shutdownServer();
+> use admin; 
+> db.shutdownServer();
+
+now connect to 27018 and check rs.status()
+
+mongo --port 27018 
+> rs.status();
+
+and look for the primary node, try inserting a document 
+db.emps.insert({name:"vinod", sal:332211});
+
+now try making the previously down node up. 
+
+start mongod --replSet navrs --logpath  \data\rs1\1.log --dbpath \data\rs1 --port 27017 --smallfiles --oplogSize 64
+
+connection to 
+mongo --port 27017 
+> rs.slaveOk();
+> db.emps.find();
+
+
+------------------------------------------------------------------------------------------------------
+Try these commands when possible 
+------------------------------------------------------------------------------------------------------
+
+> rs.help(); -> this will give the help on repl set 
+> rs.conf(); -> this will show the configuration of the reply set 
+
+> rs.conf -> this will create a special collection to know the details about repl set 
+
+> use local 
+> show collections 
+> db.system.replset.find().pretty(); -> this is the special collection which will show details of repl set there will be only one document 
+
+> db.isMaster();	// explain this will rs.help();
+
+
+
+--------------------------------------------------------------------------------------------------
+Try this if you want to show about 50000 records on primary and check on secondary 
+--------------------------------------------------------------------------------------------------
+> use navdb
+
+for( var i=0;i<50000;i++){
+	db.foo.insert({_id:i}); 
+	sleep(1);
+}
+
+
+Give  this on the primary 
+And on secondary db.foo.count(); -> this will get the count 
+
+
+---------------------------------------------------------------------
+
+
+rs.conf();  -> will give you configuration information 
+
+you can do reconfiguration and the version number shall be changed 
+
+
+
+
+
+to show slavedelay, if you are having delay you have to make it priority 0 such that it cannot become primary 
+
+> var cfg = rs.conf();
+
+> cfg    -> to show the config 
+
+> cfg.members[0].priority = 0  -> this  will also make sure this will not be primary 
+
+> cfg.members[0].slaveDelay = 3600    -> [0] indicates the member number, this show be any secondary set 
+
+> rs.reconfig(cfg)
+
+then check the config 
+> cfg or rs.config()
+
+Note: after doing this the secondary server which was delayed, if you goto the mongo shell of that and try querying it would not work.   You have to close the mongo shell (ctrl + c) or open another terminal and connect.   Then say rs.slaveOk();
+
+Then try with the delay specified. 
+
+------------------------------------------------------------------------
+
+it is also possible that you are in one terminal without going to other terminal you can have an instance of one mongo from other 
+
+assume that you are on terminal of 27018 (secondary) 
+you can say db.emps.find();
+but if you want to get the data from 27017 the 
+
+check for 
+> help connect 
+
+> var ser17=new Mongo('localhost:27017');   -> this will give an instance of mongo 27017 
+
+> var ser17_test=ser17.getDB('test');   -> to get the instance of db called test 
+
+> ser17_test.emps.find();   -> this will not work we have to make slaveOk
+
+> ser17_test.getMongo().setSlaveOk(); -> this works 
+
+then try 
+
+> ser17_test.emps.find();
+> db.emps.find(); -> for current terminal 
