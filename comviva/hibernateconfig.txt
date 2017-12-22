@@ -1,0 +1,194 @@
+log4j.properties
+
+----------------------------------------------------------------------------------------
+### direct log messages to stdout ###
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+
+log4j.appender.stdout.Target=System.out
+
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+
+log4j.appender.stdout.layout.ConversionPattern=%d{ABSOLUTE} %5p %c{1}:%L - %m%n
+
+
+
+### set log levels - for more verbose logging change 'info' to 'debug' ###
+
+
+
+log4j.rootLogger=warn, stdout
+
+
+
+log4j.logger.org.hibernate=info
+
+#log4j.logger.org.hibernate=debug
+
+
+
+### log HQL query parser activity
+
+#log4j.logger.org.hibernate.hql.ast.AST=debug
+
+
+
+### log just the SQL
+
+#log4j.logger.org.hibernate.SQL=debug
+
+
+
+### log JDBC bind parameters ###
+
+log4j.logger.org.hibernate.type=info
+
+#log4j.logger.org.hibernate.type=debug
+
+
+
+### log schema export/update ###
+
+log4j.logger.org.hibernate.tool.hbm2ddl=debug
+
+
+
+### log HQL parse trees
+
+#log4j.logger.org.hibernate.hql=debug
+
+
+
+### log cache activity ###
+
+#log4j.logger.org.hibernate.cache=debug
+
+
+
+### log transaction activity
+
+#log4j.logger.org.hibernate.transaction=debug
+
+
+
+### log JDBC resource acquisition
+
+#log4j.logger.org.hibernate.jdbc=debug
+
+
+
+### enable the following line if you want to track down connection ###
+
+### leakages when using DriverManagerConnectionProvider ###
+
+#log4j.logger.org.hibernate.connection.DriverManagerConnectionProvider=trace
+
+
+----------------------------------------------------------------------------------------
+hibernate.cfg.xml
+----------------------------------------------------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-configuration PUBLIC
+
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+
+
+<hibernate-configuration>
+
+
+
+    <session-factory>
+
+
+
+        <!-- Database connection settings -->
+
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+
+        <property name="connection.url">jdbc:mysql://localhost:3306/navdb</property>
+
+        <property name="connection.username">root</property>
+
+        <property name="connection.password">mysql</property>
+
+
+
+        <!-- JDBC connection pool (use the built-in) -->
+
+        <property name="connection.pool_size">2</property>
+
+
+
+        <!-- SQL dialect --> 
+
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+
+
+
+        <!-- Enable Hibernate's current session context -->
+
+        <property name="current_session_context_class">thread</property>
+
+
+
+        <!-- Echo all executed SQL to stdout -->
+
+        <property name="show_sql">true</property>
+
+
+
+        <!-- Drop and re-create the database schema on startup -->
+
+        <property name="hbm2ddl.auto">create</property>
+
+
+    </session-factory>
+
+
+
+</hibernate-configuration>
+----------------------------------------------------------------------------------------
+Emp.hbm.xml
+----------------------------------------------------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+
+ "-//Hibernate/Hibernate Mapping DTD//EN"
+
+ "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+
+
+<hibernate-mapping>
+
+	<class name="com.fannie.hibernate.Employee" table="EMPLOYEE11">
+
+
+
+		<id name="empId" type="int" column="EmployeeId">
+
+			<generator class="native" />
+
+			<!-- <generator class="assigned"/> -->
+
+		</id>
+
+
+
+		<property name="empName" type="string" column="empName" />
+
+		<property name="salary" type="int" column="empSal" />
+
+	</class>
+
+
+
+</hibernate-mapping>
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
