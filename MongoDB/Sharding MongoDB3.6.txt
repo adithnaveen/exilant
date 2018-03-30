@@ -1,0 +1,130 @@
+Sharding MongoDB Document 
+------------------------------------------------------------------------------------
+
+
+before starting create folders as below 
+
+
+shard0\rs0 shard0\rs1  shard0\rs2
+shard1\rs0 shard1\rs1  shard1\rs2
+shard2\rs0 shard2\rs1  shard2\rs2
+config1\config-a config1\config-b config1\config-c
+--------------------------------------------
+
+mongod --replSet s0 --dbpath C:\__home\mongoshards\shard0\rs0 --port 37017 --shardsvr 
+mongod --replSet s0 --dbpath C:\__home\mongoshards\shard0\rs1 --port 37018 --shardsvr 
+mongod --replSet s0 --dbpath C:\__home\mongoshards\shard0\rs2 --port 37019 --shardsvr 
+
+
+mongo --port 37017 
+
+
+config={
+	_id:"s0", 
+	members:[
+		{_id:0, host:"localhost:37017"}, 
+		{_id:1, host:"localhost:37018"},
+		{_id:2, host:"localhost:37019"}
+	]
+}
+
+rs.initiate(config)
+
+
+--------------------------------------------------------------------------------------
+mongod --replSet s1 --dbpath C:\__home\mongoshards\shard1\rs0 --port 47017 --shardsvr 
+mongod --replSet s1 --dbpath C:\__home\mongoshards\shard1\rs1 --port 47018 --shardsvr 
+mongod --replSet s1 --dbpath C:\__home\mongoshards\shard1\rs2 --port 47019 --shardsvr 
+
+
+mongo --port 47017 
+
+
+config={
+	_id:"s1", 
+	members:[
+		{_id:0, host:"localhost:47017"}, 
+		{_id:1, host:"localhost:47018"},
+		{_id:2, host:"localhost:47019"}
+	]
+}
+
+rs.initiate(config)
+
+
+----------------------------------------------------------------------------------------
+
+mongod --replSet s2 --dbpath C:\__home\mongoshards\shard2\rs0 --port 57017 --shardsvr 
+mongod --replSet s2 --dbpath C:\__home\mongoshards\shard2\rs1 --port 57018 --shardsvr 
+mongod --replSet s2 --dbpath C:\__home\mongoshards\shard2\rs2 --port 57019 --shardsvr 
+
+
+mongo --port 57017 
+
+
+config={
+	_id:"s2", 
+	members:[
+		{_id:0, host:"localhost:57017"}, 
+		{_id:1, host:"localhost:57018"},
+		{_id:2, host:"localhost:57019"}
+	]
+}
+
+rs.initiate(config)
+
+
+
+------------------------------------------------------------------------------------------
+
+
+mongod --dbpath C:\__home\mongoshards\config1\config-a --port 57050 --configsvr --replSet conf
+mongod --dbpath C:\__home\mongoshards\config1\config-b --port 57051 --configsvr --replSet conf
+mongod --dbpath C:\__home\mongoshards\config1\config-c --port 57052 --configsvr --replSet conf
+
+
+mongo --port 57050
+
+
+
+config={
+	_id:"conf", 
+	configsvr:true, 
+	members:[
+		{_id:0, host:"localhost:57050"}, 
+		{_id:1, host:"localhost:57051"},
+		{_id:2, host:"localhost:57052"}
+	]
+}
+
+rs.initiate(config)
+
+mongos --configdb "conf/localhost:57050,localhost:57051,localhost:57052" --port 27200
+
+
+mongo --port 27200 
+
+db.adminCommand({addshard:"s0/"+"localhost:37017"})
+db.adminCommand({addshard:"s1/"+"localhost:47017"})
+db.adminCommand({addshard:"s2/"+"localhost:57017"})
+
+
+
+db.adminCommand({enableSharding:"company"});
+db.adminCommand({shardCollection:"company.employees", key:{employee_id:1}});
+
+
+use company; 
+
+show collections; 
+
+You can switch to any primary repl set to get the data, if data is not too much then it will store in 
+single server 
+
+run this on mongos 
+
+for(var i=0;i<500000; i++){
+	db.employees.insert({employee_id:i, name:"naveen"})
+}
+
+
