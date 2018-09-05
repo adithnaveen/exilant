@@ -1,0 +1,79 @@
+class Message{
+	private String message; 
+	
+	public Message(String message){
+		this.message = message;
+	}
+	
+	public String getMessage(){
+		retrun this.message; 
+	}
+	
+	public void setMessage(String message){
+		this.message = message; 
+	}
+}
+
+public Client{
+	psvm(String args[]){
+		Message m = new Message("hello World"); 
+		m.getMessage(); 
+		m.setMessage("bye world"); 
+		m.getMessage(); 
+	}
+}
+
+
+
+
+
+
+
+> .\bin\windows\zookeeper-server-start.bat  .\config\zookeeper.properties
+
+> .\bin\windows\kafka-server-start.bat .\config\server.properties
+
+create topic 
+> .\bin\windows\kafka-topics.bat --create --zookeeper localhost:2181 --topic topicA --partitions 3 --replication-factor 1
+
+producer on cli 
+> .\bin\windows\kafka-console-producer.bat --broker-list localhost:9092 --topic topicA
+
+consumer cli
+> .\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic topicA
+
+
+-- know list of topics for zookeeper 
+
+> .\bin\windows\kafka-topics.bat --zookeeper localhost:2181 --list
+
+-- describe the topic
+.\bin\windows\kafka-topics.bat --zookeeper localhost:2181 --describe --topic topicA
+
+-- to delete the topic 
+.\bin\windows\kafka-topics.bat --zookeeper localhost:2181 --topic topicC --delete
+Important information 
+Topic topicC is marked for deletion.
+Note: This will have no impact if delete.topic.enable is not set to true.
+
+
+When you want to create more than 1 broker for the zookeeper 
+folling changes 
+broker.id=2
+listeners=PLAINTEXT://:9094
+advertised.listeners=PLAINTEXT://127.0.0.1:9094
+log.dirs=/tmp/kafka-logs-xxx
+
+the below statement works fine when you have multiple brokers(Kafka) available, which you would have got after changing the values from 
+server-x.properties file 
+
+.\bin\windows\kafka-topics.bat --create --zookeeper localhost:2181 --topic sample-topic --partitions 3 --replication-factor 2
+
+
+
+
+
+
+
+
+

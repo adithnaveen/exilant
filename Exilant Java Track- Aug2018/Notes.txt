@@ -1,0 +1,118 @@
+create or replace procedure myproc(in empid emp.empid%type, 
+				   out empname emp.empname%type, 
+				   out empsal emp.empsal\%type, 
+				....)
+as
+begin 
+end; 
+
+
+
+
+var hello = function() {
+  print("Hello Nashorn!");
+};
+
+
+hello(); 
+
+$ jjs hello.js
+
+<jsp:bean id="emp" class="com.somthing.Emp" scope="session" />
+
+<jsp:setProperty bean="emp" name="empName" value="test" />
+
+
+public void setEmpName(String empName){
+	this.empName = empName
+}
+
+
+
+
+
+
+
+
+The constructor is called
+Object Saved with hashCode com.training.singleton.Singleton@55f96302
+Object received with hashCode com.training.singleton.Singleton@776ec8df
+
+
+
+The constructor is called
+Object Saved with hashCode com.training.singleton.Singleton@55f96302
+Object received with hashCode com.training.singleton.Singleton@55f96302
+
+
+poojabdvt28@gmil.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://bit.ly/2NGVWme
+
+
+
+
+
+
+
+
+<web-app>
+	<servelt>
+		... 
+	</servetl>
+	<servelt-mapping>
+		...
+	</servlet-mapping>
+
+	<servelt>
+		... 
+	</servetl>
+	<servelt-mapping>
+		...
+	</servlet-mapping>c
+
+	<servelt>
+		... 
+	</servetl>
+	<servelt-mapping>
+		...
+	</servlet-mapping>
+</web-app>
+
+
+
+
+https://goo.gl/gJy55P
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

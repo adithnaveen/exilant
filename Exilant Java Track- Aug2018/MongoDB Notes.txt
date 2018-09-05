@@ -1,0 +1,682 @@
+<employees>
+	<employee>
+		<empid>101</empid>
+		<empname>
+			<firstname>Harry</firstname>
+			</lastname>Peter</lastname>
+		</empname>
+		
+		<address>
+			<house-number>123</house-number>
+			<street>Stevenscreek Boulveward</street>
+			<city>reston</city>
+			<state>Virginia</state>
+		</address>
+	</employee>
+</employees>
+
+employees:[
+	employee:{
+		empid:101, 
+		empname:{
+			firstname:"Harry", 
+			lastname:"Peter"
+		}, 
+		address:{
+			house-number:123,
+			street:Stevenscreek Boulveward,
+			city:reston, 
+			state:Virginia
+		}
+	}
+]
+
+
+
+
+
+employees:
+	employee:
+		empid:101 
+		empname:
+			firstname:"Harry"
+			lastname:"Peter"
+		address:
+			house-number:123
+			street:"Stevenscreek Boulveward"
+			city:"reston"
+			state:"Virginia"
+
+
+			mongodb work 
+			
+			
+db.emps.insert({empid:101, empname:"samas", empemail:"samas@gmail.com"}); 
+
+db.emps.find(); 
+
+db.emps.findOne(); 
+
+
+db.emps.insert({empid:102, empname:"subhashree", empemail:"subhashree@gmail.com"}); 
+
+		
+>mongoimport --file Employees.json --db exdb --collection emps
+			
+			
+
+-- to show employee details with iterators 
+-- find returns iterator 
+
+
+var itr=db.emps.find(); 
+			
+while(itr.hasNext()){
+	var temp=itr.next(); 
+	print(temp.empname +", " + temp.empemail); 
+}
+
+-- create a collection in that only empname and empemail
+-- has to be stored 
+
+
+var itr=db.emps.find(); 
+			
+while(itr.hasNext()){
+	var temp=itr.next(); 
+	db.emps1.insert({empname:temp.empname ,empemail: temp.empemail}); 
+}
+
+-- capped collection 
+
+db.createCollection("capColl", {capped:true, size:4000, max:5});
+
+db.capColl.insert({name:"monitor"});
+db.capColl.insert({name:"presenter"});
+db.capColl.insert({name:"charger"});
+db.capColl.insert({name:"mobile"});
+db.capColl.insert({name:"marker"});
+
+
+db.capColl.insert({name:"bottle"});
+
+only fixed number of records are stored 
+
+
+
+var p1=[{}, {}, {}];
+
+db.person.insert(p1);
+
+
+db.emps.find();
+
+ -- where clause 
+db.emps.find({any conditon (selection)}); 
+
+-- empid equals 104 
+db.emps.find({empid:104}); 
+
+-- empid greater than 103 
+db.emps.find({empid : {$gt : 103 }})
+
+-- email is munaf@exilant.com  and 
+-- empid greater than 103 
+
+
+db.emps.find({
+	empid : {$gt : 103 }, 
+	empemail:"samas@gmail.com"
+})
+
+
+--or clause 
+
+db.emps.find({
+	$or:[
+		{empid : {$gt : 103 }}, 
+		{empemail:"samas@gmail.com"}
+	]
+})
+
+
+
+
+
+
+
+-- projection 
+select empid, empname, empsal 
+db.emps.find({}, {projection, 0 or 1 }); 
+
+			
+-- 0 to hide and 1 to show 
+-- remember we cannot give 0 to user fields 
+
+db.emps.find({
+	$or:[
+		{empid : {$gt : 103 }}, 
+		{empemail:"samas@gmail.com"}
+	]
+}, {_id:0, empname:1, empemail:1}).count(); 
+
+
+			
+db.emps.find({
+	$or:[
+		{empid : {$gt : 103 }}, 
+		{empemail:"samas@gmail.com"}
+	]
+}, {_id:0, empname:1, empemail:1}).limit(3); 
+
+
+			
+			
+db.emps.find({
+	$or:[
+		{empid : {$gt : 103 }}, 
+		{empemail:"samas@gmail.com"}
+	]
+}, {_id:0, empname:1, empemail:1}).
+sort({empid:1, empname:-1}).skip(2).limit(2)
+
+			
+
+-- email should have gmail and empid > 103 or name has samas 
+
+db.emps.find({
+	empemail:{$regex:/gmail/}, 
+	$or:[
+		{empid : {$gt : 103 }}, 
+		{empname:{$regex:/samas/}}
+	]
+});
+
+
+-- list all emps who doesnot have salary 
+
+
+db.emps.find({
+	empsal:{$exists:true}
+});
+
+db.emps.insert({empid:110, empname:"Ravi", empemail:"ravi@exilant.com", empsal:33333})
+
+
+
+
+db.embed.insert({
+	customerid:101, 
+	name:{
+		firstName:"Goutam", 
+		lastName:"Kumar", 
+	}, 
+	contact:{
+		official:{
+			email:"goutam@official.com", 
+			mobile:"23232323"
+		}, 
+		personal:{
+			email:"goutam@personal.com", 
+			mobiel:"9988998899"
+		}
+	}
+})
+
+db.embed.insert({
+	customerid:102, 
+	name:{
+		firstName:"Ramu", 
+		lastName:"Kumar", 
+	}, 
+	contact:{
+		official:{
+			email:"ramu@official.com", 
+			mobile:"23232323"
+		}, 
+		personal:{
+			email:"ramu@personal.com", 
+			mobiel:"7788778877"
+		}
+	}
+})
+db.embed.find({customerid:101}); 
+
+db.embed.find({"name.firstName":"Goutam"}, {_id:0, "contact.official":1})
+
+
+db.food.insert({item:"burger", ratings:[5,6,7]});
+db.food.insert({item:"dosa", ratings:[8,3,6]});
+db.food.insert({item:"pizza", ratings:[7]});
+db.food.insert({item:"coffee", ratings:[8,9,10]});
+db.food.insert({item:"tea", ratings:[4,8,10]});
+
+1. exact match 
+db.food.find({ratings:[7]})
+2. indexed match 
+db.food.find({"ratings.1":8})
+3. any where match 
+db.food.find({ratings:8})
+4. conditional match 
+	db.food.find({ratings:{$elemMatch:{$gt:7}}})
+	or
+	db.food.find({ratings:{$gt:7}})
+
+
+
+day 2 
+
+db.emps.update(
+	{empsal:{$exists:false}},
+	{$set:{empsal:30000}}, 
+	{multi:true}
+)
+
+
+it will look for record with name if found 
+update else insert 
+
+db.emps.update(
+	{empname:"Birender"}, 
+	{$set:{empsal:31000, empemail:"birender@gmail.com", empid:201}}, 
+	{multi:true});
+
+
+db.emps.update(
+	{empname:"Birender"}, 
+	{$set:{empsal:31000, empemail:"birender@gmail.com", empid:201}}, 
+	{upsert:true});
+
+
+db.emps.update(
+	{empid:{$lt:105}}, 
+	{$unset:{empsal:true}}, 
+	{multi :true}
+	);
+
+
+db.emps.save({empid:202, empname:"Allarakha", empsal:343434, 
+"_id" : ObjectId("5b5bf86ce9b1e67f19ad1a2d")})
+
+
+db.emps.save({_id:101, empname:"Shashidhar", empsal:23232, empemail:"shashidhar@exilant.com"})
+
+
+
+db.sample.update({empname:"akshay"}, {$set:{empsal:"121212"}})
+
+
+
+db.sample.update({empname:"akshay"}, {$set:{empsal:"121212"}}, 
+	{upsert:true})
+
+
+
+db.emps1.find(); 
+
+db.emps1.remove({});
+
+
+db.emps.remove({empid:101});
+
+
+--iterating the values of the collection with 
+-- json function 
+var itr=db.emps.find();
+
+while(itr.hasNext()){
+	// print(tojson(itr.next()));
+	printjson(itr.next());
+}
+-------------------------
+var itr=db.emps.find();
+
+itr.forEach(printjson); 
+
+------------------------------ 
+db.emps.find().forEach(printjson); 
+
+
+-population collection on monogdb official site 
+https://bit.ly/2JQPpqO
+
+
+db.population.find({state:'MA'}); 
+
+
+db.population.find({state:'MA'}).explain("executionStats");
+
+
+db.population.createIndex({state:1}); 
+
+
+
+
+db.population.getIndexes(); 
+
+
+db.population.find({pop:{$gt:15000}}).explain("executionStats");
+
+db.population.createIndex({state:1, pop:-1});
+db.population.createIndex({state:-1, pop:1});
+
+db.population.find({
+	state:"MA", 
+	pop:{$gt:15000}
+}).explain("executionStats"); 
+--  "indexName" : "state_-1_pop_1",
+------------------------------------------------------
+
+db.population.find({
+	pop:{$gt:15000},
+	state:"MA"
+}).hint({state:1, pop:-1}).explain("executionStats"); 
+
+-- "indexName" : "state_-1_pop_1",
+
+"indexName" : "state_1_pop_-1",
+
+
+db.population.stats(); 
+
+**********************************************************
+		"size" : 2774134,
+        "count" : 29353,
+        "avgObjSize" : 94,
+        "storageSize" : 1449984,
+
+		"nindexes" : 4,
+        "totalIndexSize" : 1019904,
+        "indexSizes" : {
+                "_id_" : 315392,
+                "state_1" : 147456,
+                "state_1_pop_-1" : 278528,
+                "state_-1_pop_1" : 278528
+        },
+		
+		
+*******************************************************
+
+db.uemps.createIndex({empid:1}, {unique:true}); 
+
+
+db.uemps.save({empid:101, empname:"Lohit"}); 
+
+
+
+
+
+
+db.semps.save({empname:"Ankit"})
+db.semps.save({empname:"Tejaswini", empsal:12121})
+db.semps.save({empname:"Vamsi", empsal:33221})
+db.semps.save({empname:"Shankar", empsal:54321})
+
+
+db.semps.find({empsal:{$lt:13000}});
+
+
+db.semps.find().sort({empsal:1});
+
+
+db.semps.createIndex({empsal:1}, {sparse:true}); 
+
+
+db.semps.find().sort({empsal:1}).hint({empsal:1});
+
+
+
+db.places1.insert({name:'Office1',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[50.12345,
+37.44322]
+}});
+db.places1.insert({name:'Office2',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[51.125,
+37.2]
+}});
+db.places1.insert({name:'Office3',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[52.1345,
+44.412]
+}});
+db.places1.insert({name:'Office4',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[55.1,
+56.4122]
+}});
+db.places1.insert({name:'Office5',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[67.0,
+75.44322]
+}});
+db.places1.insert({name:'Office6',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[55.5,
+55.44322]
+}});
+db.places1.insert({name:'Office7',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[88.145,
+36.42122]
+}});
+db.places1.insert({name:'Office8',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[77.145,
+77.1322]
+}});
+db.places1.insert({name:'Office9',
+'city':'Bengaluru',
+'location':{"type":"Point",
+"coordinates":[56.123,
+88.44322]
+}});
+
+
+
+db.places1.createIndex({'location':'2dsphere'})
+
+
+db.places1.find({ 
+ location:{ 
+   $near: { 
+     $geometry: { 
+       type:'Point',  
+       coordinates:[50.66,50.443] 
+     }, 
+     $maxDistance:2000000 
+   } 
+ } 
+}).pretty() 
+
+
+
+
+
+
+
+db.sentence1.insert({"words":"dog"}); 
+db.sentence1.insert({"words":"dog cat"}); 
+db.sentence1.insert({"words":"cat dog"}); 
+db.sentence1.insert({"words":"dog tree cat running"}); 
+db.sentence1.insert({"words":"its always good to have a dog"}); 
+db.sentence1.insert({"words":"dogs and cats play "}); 
+db.sentence1.insert({"words":"cat kills rat"}); 
+db.sentence1.insert({"words":"cat is cute"}); 
+db.sentence1.insert({"words":"dog snouser"}); 
+
+
+db.sentence1.createIndex({words:"text"})
+
+
+
+db.sentence1.find({$text:{$search:'snouser cats'}});
+
+db.sentence1.find({$text:{$search:'dog'}});
+
+
+
+db.sentence1.find({
+$text:{
+		$search:'dog'
+	}}, 
+	{score:{
+		$meta:'textScore'
+	}
+	}).sort({score:{$meta:'textScore'}})
+
+
+
+db.getCollectionNames().forEach(function(collection) {
+indexes = db[collection].getIndexes();
+print("Indexes for " + collection + ":");
+printjson(indexes);
+});
+
+
+
+---- day 3 
+
+select deptno, projectid, count(empid) from 
+emp 
+group by  deptno; 
+
+
+
+db.population.aggregate( [ 
+	{ $group: { _id: "$state", totalPop: { $sum: "$pop" } } }, 
+	{ $match: { totalPop: { $gte: 10*1000*1000 } } } 
+]);  
+
+
+1) select state, sum(pop) 
+2) select state, city, sum(pop) 
+
+
+
+db.population.aggregate( [ 
+{ $group: { _id: { state: "$state", city: "$city" },
+pop: { $sum: "$pop" } } }, 
+{ $group: { _id: "$_id.state", avgCityPop: { $avg:
+"$pop" } } } 
+] ) 
+
+
+
+
+db.population.aggregate( [ 
+{ $group: 
+{ 
+_id: { state: "$state", city: "$city" }, 
+pop: { $sum: "$pop" } 
+} 
+}, 
+{ $sort: { pop: 1 } }, 
+{ $group: 
+{ 
+_id : "$_id.state", 
+biggestCity: { $last: "$_id.city" }, 
+biggestPop: { $last: "$pop" }, 
+smallestCity: { $first: "$_id.city" }, 
+smallestPop: { $first: "$pop" } 
+} 
+}]).pretty(); 
+
+
+-- map reduce 
+
+db.colors.insert({name:"green", value:23}); 
+db.colors.insert({name:"blue", value:44}); 
+db.colors.insert({name:"black", value:2}); 
+db.colors.insert({name:"blue", value:55}); 
+db.colors.insert({name:"blue", value:12}); 
+db.colors.insert({name:"black", value:8}); 
+
+
+var map=function(){
+	// this can have any business logic 
+	emit(this.name, this.value) 
+}
+
+reduce=function(key, values){
+	// here any business logic can go 
+	// for the given key and value 
+	
+	var sum=0; 
+	
+	for(var i=0; i<values.length; i++){
+		sum+=values[i]; 
+	}
+	return sum; 
+}
+
+var mitr=db.colors.mapReduce(map, reduce, {out:"My Result"})
+
+-- replication 
+
+create folders rs1, rs2, rs3, rs4 
+
+start mongod 
+
+mongod --replSet exrs --logpath .\rs1\rslog.log --dbpath .\rs1 --port 27017 --smallfiles --oplogSize 64
+
+mongod --replSet exrs  --dbpath .\rs2 --port 27018  --oplogSize 64
+
+mongod --replSet exrs  --dbpath .\rs3 --port 27019  --oplogSize 64
+
+
+config={
+	_id:"exrs", 
+	members:[
+		{_id:0, host:"localhost:27017"},
+		{_id:1, host:"localhost:27018"}, 
+		{_id:2, host:"localhost:27019" }
+	]
+}
+
+rs.initiate(config); 
+
+on primary > use repdb; 
+> db.emps.insert({}) -- couple of records 
+
+> mongo --port 27018 (which will open secondory terminal) 
+
+to query on secondory 
+> rs.slaveOk();  
+
+you can shutdown the primary server, goto mongo of primary 
+> db.shutdownServer(); 
+
+check now some secondory would have become primary 
+> rs.status(); 
+
+
+
+Connection Got to Mongo{options=MongoClientOptions{description='null', readPreference=primary, writeConcern=WriteConcern{w=1, wtimeout=0, fsync=false, j=false, codecRegistry=org.bson.codecs.configuration.ProvidersCodecRegistry@c2477e1, minConnectionsPerHost=0, maxConnectionsPerHost=100, threadsAllowedToBlockForConnectionMultiplier=5, serverSelectionTimeout=30000, maxWaitTime=120000, maxConnectionIdleTime=0, maxConnectionLifeTime=0, connectTimeout=10000, socketTimeout=0, socketKeepAlive=false, sslEnabled=false, sslInvalidHostNamesAllowed=false, alwaysUseMBeans=false, heartbeatFrequency=10000, minHeartbeatFrequency=500, heartbeatConnectTimeout=20000, heartbeatSocketTimeout=20000, localThreshold=15, requiredReplicaSetName='null', dbDecoderFactory=com.mongodb.DefaultDBDecoder$1@7a79be86, dbEncoderFactory=com.mongodb.DefaultDBEncoder$1@34ce8af7, socketFactory=javax.net.DefaultSocketFactory@b684286, cursorFinalizerEnabled=true, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitQueueSize=500, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, keepAlive=false, receiveBufferSize=0, sendBufferSize=0}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=20000, readTimeoutMS=20000, keepAlive=false, receiveBufferSize=0, sendBufferSize=0}}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
